@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TIP Math Pre-Board | Engr. HUD</title>
+    <title>TIP Math Pre-Board | Engr. HUD v3.0</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
     <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,9 +13,10 @@
         :root {
             --neon-cyan: #00f3ff;
             --neon-pink: #ff00ff;
+            --neon-green: #00ff9d;
+            --neon-red: #ff0055;
             --dark-bg: #0a0a0f;
             --panel-bg: #13131f;
-            --glass: rgba(19, 19, 31, 0.9);
         }
 
         body {
@@ -30,7 +31,7 @@
 
         .font-mono { font-family: 'JetBrains Mono', monospace; }
 
-        /* Cyberpunk Card Styling */
+        /* Cyberpunk Card */
         .cyber-card {
             background: var(--panel-bg);
             border: 1px solid #333;
@@ -39,232 +40,591 @@
             transition: all 0.3s ease;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
-
         .cyber-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 4px; height: 100%;
-            background: var(--neon-cyan);
-            opacity: 0.5;
-            transition: opacity 0.3s;
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--neon-cyan); opacity: 0.5; transition: opacity 0.3s;
         }
+        .cyber-card.correct::before { background: var(--neon-green); opacity: 1; }
+        .cyber-card.wrong::before { background: var(--neon-red); opacity: 1; }
+        .cyber-card:hover { transform: translateY(-2px); border-color: var(--neon-cyan); }
 
-        .cyber-card:hover {
-            transform: translateY(-2px);
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.15);
+        /* Exam Option Buttons (New Vertical Layout) */
+        .opt-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
         }
-
-        .cyber-card:hover::before { opacity: 1; }
-
-        /* Calculator Key Styling */
-        .key {
-            display: inline-block;
-            padding: 2px 6px;
-            margin: 0 2px;
-            border-radius: 4px;
-            background: #2d2d3a;
-            border-bottom: 2px solid #1a1a24;
-            color: #fff;
+        
+        .opt-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #444;
+            background: #1a1a24;
+            color: #aaa;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85em;
-            box-shadow: 0 2px 0 rgba(0,0,0,0.5);
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 6px;
+            text-align: left;
         }
-        .key.action { background: #cf3f3f; border-color: #8a1c1c; } /* Shift/Alpha */
-        .key.func { background: #3f5fcf; border-color: #1c358a; } /* Functions */
-        .key.enter { background: #3fcf5f; border-color: #1c8a35; color: #000; font-weight: bold;}
+        
+        .opt-letter {
+            font-weight: bold;
+            color: #666;
+            min-width: 24px;
+            text-align: center;
+            border-right: 1px solid #444;
+            padding-right: 12px;
+        }
 
-        /* Scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--dark-bg); }
-        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--neon-cyan); }
+        .opt-btn:hover { border-color: var(--neon-cyan); background: #222230; }
+        .opt-btn:hover .opt-letter { color: var(--neon-cyan); border-color: var(--neon-cyan); }
+
+        .opt-btn.selected { background: rgba(0, 243, 255, 0.1); border-color: var(--neon-cyan); color: white; }
+        .opt-btn.selected .opt-letter { color: var(--neon-cyan); border-color: var(--neon-cyan); }
+        
+        /* Grading States */
+        .opt-btn.correct-ans { background: rgba(0, 255, 157, 0.15); border-color: var(--neon-green); color: white; box-shadow: 0 0 10px rgba(0, 255, 157, 0.2); }
+        .opt-btn.correct-ans .opt-letter { color: var(--neon-green); border-color: var(--neon-green); }
+
+        .opt-btn.wrong-ans { background: rgba(255, 0, 85, 0.15); border-color: var(--neon-red); color: white; opacity: 1; }
+        .opt-btn.wrong-ans .opt-letter { color: var(--neon-red); border-color: var(--neon-red); }
+        
+        .opt-btn.dimmed { opacity: 0.4; }
+
+        /* Calculator Key */
+        .key {
+            display: inline-block; padding: 2px 6px; margin: 0 2px; border-radius: 4px;
+            background: #2d2d3a; border-bottom: 2px solid #1a1a24; color: #fff;
+            font-family: 'JetBrains Mono', monospace; font-size: 0.85em;
+        }
+        .key.action { background: #cf3f3f; border-color: #8a1c1c; }
+
+        /* Mode Switch */
+        .mode-switch { background: #1a1a24; border: 1px solid #333; padding: 4px; border-radius: 8px; display: flex; gap: 4px; }
+        .mode-btn { padding: 6px 16px; border-radius: 4px; font-size: 0.8em; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .mode-btn.active { background: var(--neon-pink); color: white; box-shadow: 0 0 10px rgba(255, 0, 255, 0.4); }
+        .mode-btn.inactive { color: #666; }
     </style>
 </head>
-<body class="min-h-screen pb-10">
+<body class="min-h-screen pb-20">
 
-    <header class="sticky top-0 z-50 backdrop-blur-md border-b border-gray-800 bg-opacity-90 bg-[#0a0a0f]">
+    <header class="sticky top-0 z-50 backdrop-blur-md border-b border-gray-800 bg-[#0a0a0f]/95 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-3xl font-bold tracking-wider text-white">
-                    <span class="text-[#00f3ff]">BOARD</span>MATH <span class="text-xs align-top border border-[#00f3ff] px-1 rounded text-[#00f3ff]">v1.0</span>
+                    <span class="text-[#00f3ff]">BOARD</span>MATH <span class="text-xs border border-[#00f3ff] px-1 rounded text-[#00f3ff]">v3.0</span>
                 </h1>
-                <p class="text-gray-400 text-sm tracking-widest uppercase">Pre-Board Exam Analyzer // TIP-QC</p>
             </div>
             
-            <div class="flex gap-2 w-full md:w-auto">
-                <input type="text" id="searchInput" placeholder="Search keywords..." 
-                    class="bg-[#13131f] border border-gray-700 text-white px-4 py-2 rounded focus:outline-none focus:border-[#00f3ff] w-full md:w-64 transition-colors">
+            <div class="flex gap-4 items-center">
+                <div class="mode-switch">
+                    <div id="btn-review" class="mode-btn active" onclick="setMode('review')">STUDY MODE</div>
+                    <div id="btn-exam" class="mode-btn inactive" onclick="setMode('exam')">EXAM MODE</div>
+                </div>
             </div>
         </div>
     </header>
 
     <div class="max-w-7xl mx-auto px-4 py-8">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="cyber-card p-4 rounded">
-                <div class="text-gray-400 text-xs uppercase">Total Items</div>
-                <div class="text-2xl font-bold text-white">50</div>
+        <div id="exam-dashboard" class="hidden mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="cyber-card p-4 rounded flex flex-col justify-center bg-gray-900/50 border-yellow-500/30">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="text-gray-400 text-xs uppercase">Exam Status</div>
+                    <div id="exam-status" class="text-sm font-bold text-yellow-500">IN PROGRESS</div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="submitExam()" id="submit-btn" class="flex-1 px-4 py-2 bg-[#00f3ff] hover:bg-[#00c2cc] text-black font-bold rounded shadow-[0_0_10px_rgba(0,243,255,0.3)] transition-all text-sm uppercase">
+                        Submit
+                    </button>
+                    <button onclick="resetExam()" id="reset-btn" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white font-bold rounded transition-all text-sm uppercase">
+                        Reset
+                    </button>
+                </div>
             </div>
-            <div class="cyber-card p-4 rounded">
-                <div class="text-gray-400 text-xs uppercase">With CalTech</div>
-                <div class="text-2xl font-bold text-[#00f3ff]">18</div>
+            <div class="cyber-card p-4 rounded bg-gray-900/50 flex flex-col justify-center">
+                <div class="text-gray-400 text-xs uppercase">Score</div>
+                <div class="text-3xl font-bold text-white font-mono flex items-end gap-2">
+                    <span id="score-display" class="text-[#00f3ff]">--</span> 
+                    <span class="text-gray-500 text-lg mb-1">/ 50</span>
+                </div>
             </div>
-            <div class="cyber-card p-4 rounded">
-                <div class="text-gray-400 text-xs uppercase">Key Topics</div>
-                <div class="text-2xl font-bold text-[#ff00ff]">Calc, Alg, Trig</div>
-            </div>
-            <div class="cyber-card p-4 rounded cursor-pointer hover:bg-[#1a1a2a]" onclick="toggleAllSolutions()">
-                <div class="text-gray-400 text-xs uppercase">Action</div>
-                <div class="text-xl font-bold text-white flex items-center gap-2">
-                    Show All <span class="text-xs bg-gray-700 px-1 rounded">SOLN</span>
+            <div class="cyber-card p-4 rounded bg-gray-900/50 flex flex-col justify-center">
+                <div class="text-xs text-gray-300 leading-relaxed">
+                    Select options. Click <strong class="text-[#00f3ff]">SUBMIT</strong> to grade. <br>
+                    Green = Correct. Red = Incorrect.
                 </div>
             </div>
         </div>
 
-        <div id="questions-container" class="grid grid-cols-1 gap-6">
-            </div>
+        <div id="questions-container" class="grid grid-cols-1 gap-6"></div>
     </div>
 
     <script>
-        // === THE DATA ===
-        // Full database of 50 questions based on the solution set provided.
+        // === FULL QUESTION DATABASE WITH CHOICES ===
         const questions = [
-            { id: 1, topic: "Combinatorics", q: "In an examination, an examinee may select 7 problems from a set of 10 questions. In how many ways can he make his choice?", ans: "120 ways", soln: "Combination Formula: $$C(n,r) = \\frac{n!}{r!(n-r)!}$$ $$C(10,7) = 120$$", caltech: "<span class='key'>10</span> <span class='key action'>Shift</span> <span class='key'>÷</span> <span class='key'>7</span> <span class='key enter'>=</span>" },
-            { id: 2, topic: "Quadratic Eq", q: "The quadratic equation whose roots are 2 and -3 is...", ans: "x² + x - 6 = 0", soln: "Factors are (x-2) and (x+3). $$(x-2)(x+3) = x^2+3x-2x-6 = x^2+x-6$$", caltech: "Mode 5 (EQN) → 3. Test coeff 1, 1, -6. Roots = 2, -3." },
-            { id: 3, topic: "Binomial Theorem", q: "The fourth term in the binomial expansion of (3s+2t)⁵ is...", ans: "720s²t³", soln: "r=3 (4th term). $$T_4 = \\binom{5}{3}(3s)^2(2t)^3 = 10(9s^2)(8t^3) = 720s^2t^3$$", caltech: "<span class='key'>5</span> <span class='key action'>Shift</span> <span class='key'>÷</span> <span class='key'>3</span> <span class='key'>×</span> <span class='key'>3</span> <span class='key'>x²</span> <span class='key'>×</span> <span class='key'>2</span> <span class='key'>x³</span>" },
-            { id: 4, topic: "Work Problem", q: "Mario is 2 hrs slower than Pepe. 1 hr Pepe alone, then 3 hrs together. Time for Mario alone?", ans: "8 hr", soln: "Let Pepe=x, Mario=x+2. Eq: $$\\frac{4}{x+2} + \\frac{3}{x} = 1$$ Solve for x=6. Mario = 6+2 = 8.", caltech: "<span class='key'>4</span> <span class='key'>÷</span> <span class='key'>(</span> <span class='key action'>ALPHA</span> <span class='key'>)</span> <span class='key'>+</span> <span class='key'>2</span> <span class='key'>)</span> <span class='key'>+</span> <span class='key'>3</span> <span class='key'>÷</span> <span class='key action'>ALPHA</span> <span class='key'>)</span> <span class='key action'>ALPHA</span> <span class='key'>CALC</span> <span class='key'>1</span> <span class='key action'>SHIFT</span> <span class='key'>CALC</span>" },
-            { id: 5, topic: "Circles", q: "Area enclosed by x² + y² - 10x + 4y = 196.", ans: "225π", soln: "Complete squares: $$(x-5)^2 + (y+2)^2 = 196+25+4 = 225$$ $$r^2=225, Area=\\pi r^2 = 225\\pi$$" },
-            { id: 6, topic: "Rate Problem", q: "River flows 3 mph. Boat goes upstream 2 miles in same time as 3 miles downstream. Boat speed?", ans: "15 mph", soln: "$$T_{up} = T_{down} \\rightarrow \\frac{2}{v-3} = \\frac{3}{v+3}$$ Solve v = 15.", caltech: "<span class='key'>2</span> <span class='key'>÷</span> <span class='key'>(</span> <span class='key'>X</span> <span class='key'>-</span> <span class='key'>3</span> <span class='key'>)</span> <span class='key action'>ALPHA</span> <span class='key'>=</span> <span class='key'>3</span> <span class='key'>÷</span> <span class='key'>(</span> <span class='key'>X</span> <span class='key'>+</span> <span class='key'>3</span> <span class='key'>)</span> <span class='key action'>SHIFT</span> <span class='key'>SOLVE</span>" },
-            { id: 7, topic: "Solid Geometry", q: "Volume of cylinder inscribed in cube of edge 10 cm.", ans: "250π", soln: "h=10, r=5. $$V = \\pi r^2 h = \\pi(25)(10) = 250\\pi$$" },
-            { id: 8, topic: "Permutations", q: "5 people line up, 2 refuse to follow each other.", ans: "72", soln: "Total = 120. Together = 2! × 4! = 48. $$120 - 48 = 72$$" },
-            { id: 9, topic: "Parabola", q: "Length of latus rectum: y² - 8x - 4y - 20 = 0", ans: "8", soln: "$$(y-2)^2 = 8(x+3)$$ LR = 4a = 8." },
-            { id: 10, topic: "Trigonometry", q: "Triangle C=28.7°, a=132, b=224. Find Angle B.", ans: "120° (approx)", soln: "Cosine Law for c, then Cosine Law for Angle B (safer than Sine Law for obtuse). $$B \\approx 120.8^\\circ$$", caltech: "Store A, B, C. Calc c. Use Cosine Rule for Angle." },
-            { id: 11, topic: "Trig ID", q: "tan 4A = cot 6A. Value of A?", ans: "9°", soln: "Cofunction: $$4A + 6A = 90 \\rightarrow 10A = 90 \\rightarrow A=9$$" },
-            { id: 12, topic: "Mensuration", q: "Tiles 5x5cm needed for 2m x 1.5m wall (in dozens).", ans: "100", soln: "Area Wall = 30000. Area Tile = 25. Num = 1200. Dozens = 100." },
-            { id: 13, topic: "Calculus", q: "Derivative of ln(cos x).", ans: "-tan x", soln: "$$y' = \\frac{1}{\\cos x}(-\\sin x) = -\\tan x$$", caltech: "d/dx(ln(cos(X))) at X=2. Compare with -tan(2)." },
-            { id: 14, topic: "Related Rates", q: "Man 1.8m tall, walking 1.2m/s from 6.7m post. Rate of shadow tip?", ans: "1.64 m/s", soln: "Similar triangles. $$4.9y = 6.7x$$ Derivative gives dy/dt = 1.64." },
-            { id: 15, topic: "Integrals", q: "Double integral of p³ dp dθ...", ans: "10π", soln: "Integrate inner: $$64\\cos^4\\theta - 4$$. Integrate outer 0 to π/2.", caltech: "<span class='key'>∫</span> <span class='key'>(</span> <span class='key'>64</span> <span class='key'>cos</span> <span class='key'>X</span> <span class='key'>^</span> <span class='key'>4</span> <span class='key'>-</span> <span class='key'>4</span> <span class='key'>,</span> <span class='key'>0</span> <span class='key'>,</span> <span class='key'>π/2</span> <span class='key'>)</span>" },
-            { id: 16, topic: "Mechanics", q: "Theorem used to solve for centroids?", ans: "Varignon's", soln: "Principle of Moments." },
-            { id: 17, topic: "Optimization", q: "Two numbers sum 20, product max.", ans: "10 and 10", soln: "Max product of sum always occurs when numbers are equal." },
-            { id: 18, topic: "Related Rates", q: "Conical vessel. Rate volume increasing when depth is 4?", ans: "8π", soln: "$$V = \\frac{\\pi}{12}h^3$$. $$dV/dt = (\\pi/4)h^2 (dh/dt) = (\\pi/4)(16)(2) = 8\\pi$$" },
-            { id: 19, topic: "Complex Nos", q: "i¹⁰⁰ is equal to...", ans: "1", soln: "100 is divisible by 4. $$i^4 = 1$$", caltech: "CMPLX Mode. <span class='key'>i</span> <span class='key'>^</span> <span class='key'>100</span>" },
-            { id: 20, topic: "Laplace", q: "Inverse Laplace of 6/(2s+10).", ans: "3e⁻⁵ᵗ", soln: "$$\\frac{6}{2(s+5)} = \\frac{3}{s+5} \\rightarrow 3e^{-5t}$$" },
-            { id: 21, topic: "Complex Nos", q: "Subtract (5-2i) from (3-5i).", ans: "-2 - 3i", soln: "(3-5)-(5-2) = -2-3i", caltech: "CMPLX Mode. Direct entry." },
-            { id: 22, topic: "Matrix", q: "Evaluate determinant of complex matrix.", ans: "29", soln: "$$(3+4i)(3-4i) - (-2i)(-2i) = 25 - (-4) = 29$$", caltech: "CMPLX Mode. Direct entry." },
-            { id: 23, topic: "Geometry", q: "Area of equilateral triangle with altitude 5√3.", ans: "25√3", soln: "h=s√3/2 → s=10. Area = s²√3/4 = 25√3." },
-            { id: 24, topic: "Progression", q: "Pendulum distance. First 10, ratio 9/10.", ans: "100", soln: "Infinite Geom Series. $$S = \\frac{a}{1-r} = \\frac{10}{0.1} = 100$$" },
-            { id: 25, topic: "Vectors", q: "Operator j rotates vector by...", ans: "90°", soln: "Multiplication by imaginary unit is 90 deg rotation." },
-            { id: 26, topic: "Laplace", q: "Laplace transform of te²ᵗ.", ans: "1/(s-2)²", soln: "Shift property on 1/s²." },
-            { id: 27, topic: "Diff Eq", q: "Solve ydy - 4xdx = 0.", ans: "y² = 4x² + c", soln: "Integrate both sides. y²/2 = 2x² + C." },
-            { id: 28, topic: "Trigonometry", q: "Ratio sec:csc is 1:4. Find tan:cot.", ans: "1:16", soln: "sec/csc = tan = 1/4. tan/cot = tan² = 1/16." },
-            { id: 29, topic: "Decay", q: "Half life 1500 yrs. Percentage after 250 yrs?", ans: "89%", soln: "$$0.5^{(250/1500)}$$", caltech: "<span class='key'>0.5</span> <span class='key'>^</span> <span class='key'>(</span> <span class='key'>250</span> <span class='key'>÷</span> <span class='key'>1500</span> <span class='key'>)</span>" },
-            { id: 30, topic: "Logarithms", q: "logₐ 2187 = 7/2. Find a.", ans: "9", soln: "$$a = 2187^{2/7} = 9$$", caltech: "<span class='key'>2187</span> <span class='key'>^</span> <span class='key'>(</span> <span class='key'>2</span> <span class='key'>÷</span> <span class='key'>7</span> <span class='key'>)</span>" },
-            { id: 31, topic: "Diff Eq", q: "Which is variable separable?", ans: "2ydx = (x²+1)dy", soln: "Can separate x and y terms completely." },
-            { id: 32, topic: "Growth", q: "Pop 40 to 50 in 10 yrs. Pop in 20 yrs?", ans: "62.18", soln: "Geometric ratio 1.25 every 10 yrs. $$40 \\times 1.25^2 = 62.5$$" },
-            { id: 33, topic: "Probability", q: "3 White 5 Black. 2 drawn. Prob both black?", ans: "5/14", soln: "$$5/8 \\times 4/7 = 20/56 = 5/14$$" },
-            { id: 34, topic: "Inverse Trig", q: "Arctan(x+1) + Arctan(x-1) = Arctan 12.", ans: "1.33", soln: "Use sum of arctan formula. Solve quadratic.", caltech: "Shift Solve equation." },
-            { id: 35, topic: "Surveying", q: "Line AB N55W, AC N50E. Find BC.", ans: "122.83m", soln: "Angle A = 105°. Cosine Law on 50 and 100.", caltech: "<span class='key'>√</span> <span class='key'>(</span> <span class='key'>50²</span> <span class='key'>+</span> <span class='key'>100²</span> <span class='key'>-</span> <span class='key'>2(50)(100)cos105</span> <span class='key'>)</span>" },
-            { id: 36, topic: "Mensuration", q: "Duplicate of Q12 (Tiles).", ans: "100", soln: "Same as Q12." },
-            { id: 37, topic: "Integrals", q: "Area bounded by y²=4x and y=2x-4.", ans: "9", soln: "Integrate (Right - Left) dy from -2 to 4.", caltech: "<span class='key'>∫</span> <span class='key'>(</span> <span class='key'>((X+4)/2 - X²/4)</span> <span class='key'>,</span> <span class='key'>-2</span> <span class='key'>,</span> <span class='key'>4</span> <span class='key'>)</span>" },
-            { id: 38, topic: "Progression", q: "Find x for AP: 5x-3, x+2, 3x-11.", ans: "3", soln: "2(x+2) = (5x-3)+(3x-11). Solve x=3." },
-            { id: 39, topic: "Vectors", q: "A = -4i+2k, B = 2i-k. Relationship?", ans: "Parallel", soln: "A = -2B. Scalar multiple." },
-            { id: 40, topic: "Permutations", q: "Books: 5 Math, 4 Phys, 2 Cir. By subject.", ans: "34,560", soln: "3! (groups) × 5! × 4! × 2! = 34,560." },
-            { id: 41, topic: "Optimization", q: "Closed tank min surface area. Vol=576.56.", ans: "383.40", soln: "Min area when h=D. r approx 4.51. Area = 6πr²." },
-            { id: 42, topic: "Geometry", q: "Cone H=24 D=12. Water H=18. Vol?", ans: "381.70", soln: "Similar triangles r=4.5. Vol = 1/3 π r² h." },
-            { id: 43, topic: "Trig ID", q: "Express 2sin²θ vs cos2θ.", ans: "1 - cos2θ", soln: "Standard identity." },
-            { id: 44, topic: "Permutations", q: "Duplicate of Q40 (Books).", ans: "34,560", soln: "See Q40." },
-            { id: 45, topic: "Diff Eq", q: "Gen solution for y = 3x² + ce⁻²ˣ.", ans: "y' + 2y = 6x² + 6x", soln: "Eliminate arbitrary constant c." },
-            { id: 46, topic: "Functions", q: "Range of f(x) = (4x+3)/(x-1).", ans: "R - {4}", soln: "Horizontal asymptote at y=4/1 = 4." },
-            { id: 47, topic: "Inequalities", q: "Solution set (-2, 3).", ans: "x² - x - 6 < 0", soln: "Factors (x+2)(x-3) < 0." },
-            { id: 48, topic: "Variation", q: "z varies directly x, inv y. Find z.", ans: "15", soln: "k = 7.5. z = 7.5(4/2) = 15." },
-            { id: 49, topic: "Binomial", q: "5th term of (3x-y)⁸.", ans: "5670x⁴y⁴", soln: "8C4 (3x)⁴ (-y)⁴." },
-            { id: 50, topic: "Sequence", q: "Harmonic seq -1/2, 1, 1/x, 1/16. Find x.", ans: "10", soln: "AP reciprocals: -2, (skipped), 1/x becomes x... AP is -2, 4, 10, 16. x=10." }
+            { 
+                id: 1, key: 'c', topic: "Combinatorics", 
+                q: "In an examination, an examinee may select 7 problems from a set of 10 questions. In how many ways can he make his choice?",
+                options: { a: "604,800 ways", b: "100 ways", c: "120 ways", d: "150 ways" },
+                ans: "120 ways", soln: "$$C(10,7) = 120$$", caltech: "<span class='key'>10</span> <span class='key action'>Shift</span> <span class='key'>÷</span> <span class='key'>7</span>" 
+            },
+            { 
+                id: 2, key: 'c', topic: "Quadratic Eq", 
+                q: "The quadratic equation whose roots are 2 and -3 is:",
+                options: { a: "x² - x - 6 = 0", b: "x² - x + 6 = 0", c: "x² + x - 6 = 0", d: "x² + x + 6 = 0" },
+                ans: "x² + x - 6 = 0", soln: "(x-2)(x+3) = x² + x - 6", caltech: "Mode 5 → 3" 
+            },
+            { 
+                id: 3, key: 'b', topic: "Binomial", 
+                q: "The fourth term in the binomial expansion of (3s+2t)⁵ is:",
+                options: { a: "24st", b: "720s²t³", c: "648s⁴t", d: "24s⁴t" },
+                ans: "720s²t³", soln: "$$\\binom{5}{3}(3s)^2(2t)^3 = 10(9s^2)(8t^3)$$" 
+            },
+            { 
+                id: 4, key: 'c', topic: "Work Problem", 
+                q: "Mario 2hrs slower than Pepe. 1hr Pepe alone, 3hrs together. Time for Mario alone?",
+                options: { a: "5 hr", b: "6 hr", c: "8 hr", d: "10 hr" },
+                ans: "8 hr", soln: "Eq: 4/(x+2) + 3/x = 1. Solve x=6. Mario=8." 
+            },
+            { 
+                id: 5, key: 'b', topic: "Circles", 
+                q: "Area enclosed by the circle x² + y² - 10x + 4y = 196.",
+                options: { a: "15π", b: "225π", c: "12π", d: "144π" },
+                ans: "225π", soln: "(x-5)² + (y+2)² = 225. r²=225." 
+            },
+            { 
+                id: 6, key: 'b', topic: "Rate Problem", 
+                q: "River 3mph. Upstream 2mi = Downstream 3mi. Boat speed?",
+                options: { a: "10 mph", b: "15 mph", c: "20 mph", d: "25 mph" },
+                ans: "15 mph", soln: "2/(v-3) = 3/(v+3)." 
+            },
+            { 
+                id: 7, key: 'c', topic: "Solid Geom", 
+                q: "Volume of cylinder inscribed in cube of edge 10 cm.",
+                options: { a: "200π", b: "230π", c: "250π", d: "300π" },
+                ans: "250π", soln: "h=10, r=5. V = π(25)(10)." 
+            },
+            { 
+                id: 8, key: 'c', topic: "Permutations", 
+                q: "5 people line up, 2 refuse to follow each other.",
+                options: { a: "120", b: "90", c: "72", d: "140" },
+                ans: "72", soln: "Total (120) - Together (48) = 72." 
+            },
+            { 
+                id: 9, key: 'd', topic: "Parabola", 
+                q: "Length of latus rectum of y² - 8x - 4y - 20 = 0",
+                options: { a: "2", b: "4", c: "6", d: "8" },
+                ans: "8", soln: "(y-2)² = 8(x+3). 4a = 8." 
+            },
+            { 
+                id: 10, key: 'c', topic: "Trigonometry", 
+                q: "Triangle C=28.7°, a=132, b=224. Find Angle B.",
+                options: { a: "130°", b: "110°", c: "120°", d: "90°" },
+                ans: "120°", soln: "Cosine Law for c, then for B." 
+            },
+            { 
+                id: 11, key: 'a', topic: "Trig ID", 
+                q: "If tan 4A = cot 6A, find A.",
+                options: { a: "9°", b: "12°", c: "10°", d: "14°" },
+                ans: "9°", soln: "4A + 6A = 90. 10A = 90." 
+            },
+            { 
+                id: 12, key: 'a', topic: "Mensuration", 
+                q: "Tiles 5x5cm for 2m x 1.5m wall. How many dozens?",
+                options: { a: "100", b: "120", c: "1,000", d: "1,200" },
+                ans: "100", soln: "Area 30000 / 25 = 1200 tiles = 100 doz." 
+            },
+            { 
+                id: 13, key: 'b', topic: "Calculus", 
+                q: "Find first derivative of ln(cos x).",
+                options: { a: "csc x", b: "-tan x", c: "sec x", d: "cot x" },
+                ans: "-tan x", soln: "y' = (1/cos x)(-sin x)." 
+            },
+            { 
+                id: 14, key: 'b', topic: "Rates", 
+                q: "Shadow tip rate. Man 1.8m, Post 6.7m, Walking 1.2m/s.",
+                options: { a: "2.16 m/s", b: "1.64 m/s", c: "1.83 m/s", d: "1.78 m/s" },
+                ans: "1.64 m/s", soln: "Similar triangles derivative." 
+            },
+            { 
+                id: 15, key: 'b', topic: "Integrals", 
+                q: "Solve the double integral $$\\int_{0}^{\\pi/2}\\int_{2}^{4\\cos\\theta}\\rho^{3}d\\rho d\\theta$$",
+                options: { a: "π/3", b: "10π", c: "π/2", d: "3π" },
+                ans: "10π", soln: "Convert and solve." 
+            },
+            { 
+                id: 16, key: 'b', topic: "Mechanics", 
+                q: "Theorem used to solve for centroids?",
+                options: { a: "Pappus'", b: "Varignon's", c: "Castigliano's", d: "Pascal's" },
+                ans: "Varignon's", soln: "Principle of Moments." 
+            },
+            { 
+                id: 17, key: 'b', topic: "Optimization", 
+                q: "Two numbers sum 20, product maximum.",
+                options: { a: "8 and 12", b: "10 and 10", c: "6 and 14", d: "9 and 11" },
+                ans: "10 and 10", soln: "Square maximizes product." 
+            },
+            { 
+                id: 18, key: 'c', topic: "Rates", 
+                q: "Conical vessel filling. Rate of volume at depth 4?",
+                options: { a: "3π", b: "4π", c: "8π", d: "16π" },
+                ans: "8π", soln: "dV/dt formula for cone." 
+            },
+            { 
+                id: 19, key: 'c', topic: "Complex", 
+                q: "i¹⁰⁰ is equal to:",
+                options: { a: "i", b: "-i", c: "1", d: "-1" },
+                ans: "1", soln: "100 is multiple of 4." 
+            },
+            { 
+                id: 20, key: 'c', topic: "Laplace", 
+                q: "Inverse Laplace of 6/(2s+10)",
+                options: { a: "3e⁻¹⁰ᵗ", b: "6e⁻⁵ᵗ", c: "3e⁻⁵ᵗ", d: "0.6e⁻²ᵗ" },
+                ans: "3e⁻⁵ᵗ", soln: "Simplify to 3/(s+5)." 
+            },
+            { 
+                id: 21, key: 'c', topic: "Complex", 
+                q: "Subtract (5-2i) from (3-5i).",
+                options: { a: "2+3i", b: "2-7i", c: "-2-3i", d: "13-16i" },
+                ans: "-2-3i", soln: "(3-5) + i(-5+2)." 
+            },
+            { 
+                id: 22, key: 'c', topic: "Matrix", 
+                q: "Evaluate determinant of complex matrix.",
+                options: { a: "21", b: "5-16i", c: "29", d: "4-2i" },
+                ans: "29", soln: "(3+4i)(3-4i) - (-2i)(-2i)." 
+            },
+            { 
+                id: 23, key: 'c', topic: "Geometry", 
+                q: "Area of equilateral triangle with altitude 5√3.",
+                options: { a: "5√3/4", b: "100√3", c: "25√3", d: "50√3" },
+                ans: "25√3", soln: "s=10. Area formula." 
+            },
+            { 
+                id: 24, key: 'd', topic: "Series", 
+                q: "Pendulum distance. First 10, ratio 9/10.",
+                options: { a: "110", b: "99", c: "90", d: "100" },
+                ans: "100", soln: "S = 10/(1-0.9)." 
+            },
+            { 
+                id: 25, key: 'b', topic: "Vectors", 
+                q: "Operator j rotates vector by:",
+                options: { a: "180°", b: "90°", c: "60°", d: "270°" },
+                ans: "90°", soln: "Imaginary axis is 90 deg." 
+            },
+            { 
+                id: 26, key: 'a', topic: "Laplace", 
+                q: "Laplace transform of te²ᵗ",
+                options: { a: "1/(s-2)²", b: "e²/s²", c: "1/(s²(s-2))", d: "e²/(s-2)" },
+                ans: "1/(s-2)²", soln: "Frequency shift." 
+            },
+            { 
+                id: 27, key: 'd', topic: "Diff Eq", 
+                q: "Solve ydy - 4xdx = 0",
+                options: { a: "y²+x²=c", b: "4x²-y²=c", c: "y²+4x²=c", d: "y²=4x²+c" },
+                ans: "y²=4x²+c", soln: "Integrate y and x." 
+            },
+            { 
+                id: 28, key: 'd', topic: "Trig", 
+                q: "Ratio sec:csc = 1:4. Find tan:cot.",
+                options: { a: "4:1", b: "1:8", c: "8:1", d: "1:16" },
+                ans: "1:16", soln: "tan=1/4. ratio is tan²." 
+            },
+            { 
+                id: 29, key: 'c', topic: "Decay", 
+                q: "Half life 1500 yrs. % after 250 yrs?",
+                options: { a: "80%", b: "75%", c: "89%", d: "98%" },
+                ans: "89%", soln: "0.5^(250/1500)." 
+            },
+            { 
+                id: 30, key: 'c', topic: "Logs", 
+                q: "logₐ 2187 = 7/2. Find a.",
+                options: { a: "3", b: "6", c: "9", d: "12" },
+                ans: "9", soln: "a = 2187^(2/7)." 
+            },
+            { 
+                id: 31, key: 'a', topic: "Diff Eq", 
+                q: "Which is variable separable?",
+                options: { a: "2ydx=(x²+1)dy", b: "(x+y)dx-2ydy=0", c: "(x+x²y)dy...", d: "y²dx+..." },
+                ans: "2ydx=(x²+1)dy", soln: "Separable." 
+            },
+            { 
+                id: 32, key: 'c', topic: "Growth", 
+                q: "Pop 40 to 50 in 10yrs. Pop in 20yrs?",
+                options: { a: "56.19", b: "71.29", c: "62.18", d: "59.24" },
+                ans: "62.18", soln: "40 * (1.25)²." 
+            },
+            { 
+                id: 33, key: 'c', topic: "Prob", 
+                q: "3W 5B. 2 drawn. Prob both black?",
+                options: { a: "5/16", b: "5/28", c: "5/14", d: "5/32" },
+                ans: "5/14", soln: "(5/8)*(4/7)." 
+            },
+            { 
+                id: 34, key: 'b', topic: "Inv Trig", 
+                q: "Arctan(x+1)+Arctan(x-1)=Arctan12. Find x.",
+                options: { a: "1.5", b: "1.33", c: "1.20", d: "1.25" },
+                ans: "1.33", soln: "Tan sum formula." 
+            },
+            { 
+                id: 35, key: 'd', topic: "Surveying", 
+                q: "Line AB N55W, AC N50E. Find BC.",
+                options: { a: "111.94 m", b: "133.74 m", c: "147.65 m", d: "122.83 m" },
+                ans: "122.83 m", soln: "Cosine Law (105 deg)." 
+            },
+            { 
+                id: 36, key: 'a', topic: "Mensuration", 
+                q: "Tiles for wall (Duplicate Q12).",
+                options: { a: "100", b: "120", c: "1,000", d: "1,200" },
+                ans: "100", soln: "Same as Q12." 
+            },
+            { 
+                id: 37, key: 'c', topic: "Integral", 
+                q: "Area bounded by y²=4x and y=2x-4.",
+                options: { a: "7", b: "8", c: "9", d: "10" },
+                ans: "9", soln: "Definite Integral." 
+            },
+            { 
+                id: 38, key: 'c', topic: "AP", 
+                q: "Find x for AP: 5x-3, x+2, 3x-11.",
+                options: { a: "1", b: "2", c: "3", d: "4" },
+                ans: "3", soln: "2(x+2) = sum of others." 
+            },
+            { 
+                id: 39, key: 'b', topic: "Vectors", 
+                q: "A=-4i+2k, B=2i-k. Relationship?",
+                options: { a: "orthogonal", b: "parallel", c: "neither", d: "none" },
+                ans: "parallel", soln: "Scalar multiple." 
+            },
+            { 
+                id: 40, key: 'd', topic: "Permutation", 
+                q: "Books arrangement by subject.",
+                options: { a: "292", b: "5760", c: "12870", d: "34,560" },
+                ans: "34,560", soln: "3! * 5! * 4! * 2!" 
+            },
+            { 
+                id: 41, key: 'a', topic: "Opt", 
+                q: "Min surface area cyl tank, V=576.56.",
+                options: { a: "383.40", b: "412.6", c: "516.32", d: "218.60" },
+                ans: "383.40", soln: "h=D for min area." 
+            },
+            { 
+                id: 42, key: 'a', topic: "Geom", 
+                q: "Conical vessel water volume.",
+                options: { a: "381.70", b: "298.40", c: "412.60", d: "188.40" },
+                ans: "381.70", soln: "Similar triangles." 
+            },
+            { 
+                id: 43, key: 'c', topic: "Trig", 
+                q: "Express 2sin²θ.",
+                options: { a: "cos 2θ - 1", b: "cos 2θ + 1", c: "1 - cos 2θ", d: "1 + cos 2θ" },
+                ans: "1 - cos 2θ", soln: "Identity." 
+            },
+            { 
+                id: 44, key: 'd', topic: "Permutation", 
+                q: "Books arrangement (Duplicate Q40).",
+                options: { a: "292", b: "5760", c: "12870", d: "34,560" },
+                ans: "34,560", soln: "Same as Q40." 
+            },
+            { 
+                id: 45, key: 'a', topic: "Diff Eq", 
+                q: "Gen solution of y = 3x² + ce⁻²ˣ",
+                options: { a: "y'+2y=6x²+6x", b: "y''+2y=...", c: "y'-2y=...", d: "y''+2y=..." },
+                ans: "y'+2y=6x²+6x", soln: "Eliminate c." 
+            },
+            { 
+                id: 46, key: 'd', topic: "Functions", 
+                q: "Range of f(x) = (4x+3)/(x-1)",
+                options: { a: "R - {1}", b: "R - {2}", c: "R - {3}", d: "R - {4}" },
+                ans: "R - {4}", soln: "Horizontal Asymptote." 
+            },
+            { 
+                id: 47, key: 'd', topic: "Ineq", 
+                q: "Solution set (-2, 3)",
+                options: { a: "x²-8x-25≥0", b: "x²-4x-21≥0", c: "x²-4x-21<0", d: "x²-x-6<0" },
+                ans: "x²-x-6 < 0", soln: "Between roots is < 0." 
+            },
+            { 
+                id: 48, key: 'b', topic: "Variation", 
+                q: "z varies directly x, inv y. Find z.",
+                options: { a: "7.5", b: "15", c: "30", d: "10" },
+                ans: "15", soln: "k=7.5." 
+            },
+            { 
+                id: 49, key: 'b', topic: "Binomial", 
+                q: "5th term of (3x-y)⁸",
+                options: { a: "-5670x⁴y⁴", b: "5670x⁴y⁴", c: "13608x³y⁵", d: "-13608x³y⁵" },
+                ans: "5670x⁴y⁴", soln: "Even power of y is positive." 
+            },
+            { 
+                id: 50, key: 'd', topic: "Sequence", 
+                q: "Harmonic seq -1/2, 1, 1/x, 1/16. Find x.",
+                options: { a: "7", b: "8", c: "9", d: "10" },
+                ans: "10", soln: "AP reciprocals: -2, 4, 10, 16." 
+            }
         ];
 
-        // === APP LOGIC ===
+        let currentMode = 'review';
+        let userAnswers = {};
+        let examSubmitted = false;
+
         const container = document.getElementById('questions-container');
-        const searchInput = document.getElementById('searchInput');
+        const examDashboard = document.getElementById('exam-dashboard');
+        const scoreDisplay = document.getElementById('score-display');
+        const examStatus = document.getElementById('exam-status');
+        const submitBtn = document.getElementById('submit-btn');
 
-        function renderQuestions(items) {
+        function setMode(mode) {
+            currentMode = mode;
+            document.getElementById('btn-review').className = `mode-btn ${mode === 'review' ? 'active' : 'inactive'}`;
+            document.getElementById('btn-exam').className = `mode-btn ${mode === 'exam' ? 'active' : 'inactive'}`;
+            
+            if (mode === 'exam') {
+                examDashboard.classList.remove('hidden');
+                renderQuestions();
+            } else {
+                examDashboard.classList.add('hidden');
+                renderQuestions();
+            }
+        }
+
+        function resetExam() {
+            userAnswers = {};
+            examSubmitted = false;
+            examStatus.innerText = "IN PROGRESS";
+            examStatus.classList.replace('text-[#00ff9d]', 'text-yellow-500');
+            scoreDisplay.innerText = "--";
+            submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            submitBtn.disabled = false;
+            renderQuestions();
+        }
+
+        function selectOption(qId, option) {
+            if (examSubmitted) return;
+            userAnswers[qId] = option;
+            renderQuestions();
+        }
+
+        function submitExam() {
+            if (examSubmitted) return;
+            examSubmitted = true;
+            let score = 0;
+            questions.forEach(q => {
+                if (userAnswers[q.id] === q.key) score++;
+            });
+            scoreDisplay.innerText = score;
+            examStatus.innerText = "COMPLETED";
+            examStatus.classList.replace('text-yellow-500', 'text-[#00ff9d]');
+            submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            submitBtn.disabled = true;
+            renderQuestions();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderQuestions() {
             container.innerHTML = '';
-            items.forEach(item => {
-                const hasCalTech = item.caltech ? true : false;
-                const caltechBadge = hasCalTech ? 
-                    `<span class="bg-gray-800 border border-[#00f3ff] text-[#00f3ff] text-xs px-2 py-1 rounded font-mono flex items-center gap-1">
-                        <span class="w-2 h-2 rounded-full bg-[#00f3ff] animate-pulse"></span> CALTECH
-                    </span>` : '';
+            
+            questions.forEach(item => {
+                const isExam = currentMode === 'exam';
+                const userSel = userAnswers[item.id];
+                const isCorrect = userSel === item.key;
+                
+                // Card Styling
+                let cardClass = 'cyber-card rounded-lg p-6 flex flex-col gap-4';
+                if (isExam && examSubmitted) {
+                    if (isCorrect) cardClass += ' correct';
+                    else if (userSel) cardClass += ' wrong';
+                }
 
-                const card = document.createElement('div');
-                card.className = 'cyber-card rounded-lg p-6 flex flex-col gap-4';
-                card.innerHTML = `
+                // Header
+                let headerHTML = `
                     <div class="flex justify-between items-start">
                         <div class="flex items-center gap-3">
                             <span class="text-3xl font-bold text-gray-700 font-mono">#${item.id}</span>
                             <span class="text-xs text-[#ff00ff] border border-[#ff00ff] px-2 rounded uppercase tracking-wider">${item.topic}</span>
                         </div>
-                        ${caltechBadge}
+                        ${item.caltech && !isExam ? `<span class="bg-gray-800 border border-[#00f3ff] text-[#00f3ff] text-xs px-2 py-1 rounded font-mono flex items-center gap-1">CALTECH</span>` : ''}
                     </div>
-                    
                     <div class="text-lg font-medium text-gray-200">${item.q}</div>
-                    
-                    <div class="mt-2 p-3 bg-black/40 border-l-2 border-yellow-500 text-yellow-500 font-mono text-sm">
-                        ANSWER: ${item.ans}
-                    </div>
-
-                    <button onclick="toggleSoln(${item.id})" 
-                        class="mt-auto w-full py-2 bg-[#1f1f2e] hover:bg-[#2d2d3a] text-gray-300 text-sm font-bold uppercase tracking-widest transition-colors border-t border-gray-700 flex justify-center items-center gap-2 group">
-                        <span>View Protocol</span>
-                        <svg class="w-4 h-4 group-hover:translate-y-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                    </button>
-
-                    <div id="soln-${item.id}" class="hidden pt-4 border-t border-gray-800 space-y-4">
-                        <div class="text-gray-400 text-sm">
-                            <strong class="text-[#00f3ff]">SOLUTION_LOG:</strong><br>
-                            <div class="mt-2">${item.soln}</div>
-                        </div>
-                        ${item.caltech ? `
-                        <div class="bg-[#1a1a24] p-3 rounded border border-gray-700">
-                            <div class="text-xs text-gray-500 mb-2 font-bold flex items-center gap-2">
-                                <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm3 3h2v2H7V7zm4 0h2v2h-2V7zm4 0h2v2h-2V7zM7 11h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"/></svg>
-                                INPUT SEQUENCE
-                            </div>
-                            <div class="font-mono text-sm text-gray-300 leading-8">
-                                ${item.caltech}
-                            </div>
-                        </div>` : ''}
-                    </div>
                 `;
+
+                // Content Body
+                let contentHTML = '';
+
+                if (isExam) {
+                    // Exam Mode: Choices as Text Buttons
+                    let optsHTML = `<div class="opt-container">`;
+                    const keys = ['a', 'b', 'c', 'd'];
+                    
+                    keys.forEach(key => {
+                        let btnClass = 'opt-btn';
+                        // Logic for coloring buttons after submit
+                        if (examSubmitted) {
+                            if (key === item.key) btnClass += ' correct-ans';
+                            else if (userSel === key && key !== item.key) btnClass += ' wrong-ans';
+                            else btnClass += ' dimmed';
+                        } else {
+                            if (userSel === key) btnClass += ' selected';
+                        }
+                        
+                        optsHTML += `
+                        <div onclick="selectOption(${item.id}, '${key}')" class="${btnClass}">
+                            <div class="opt-letter">${key.toUpperCase()}</div>
+                            <div class="flex-1">${item.options[key] || "Option " + key.toUpperCase()}</div>
+                        </div>`;
+                    });
+                    optsHTML += `</div>`;
+                    contentHTML = optsHTML;
+
+                    // Explanation after submit
+                    if (examSubmitted) {
+                        contentHTML += `
+                            <div class="mt-4 pt-4 border-t border-gray-800 text-sm animate-fade-in">
+                                <div class="text-gray-300 bg-gray-900/80 p-3 rounded border-l-2 border-[#00ff9d]">
+                                    <div class="text-[#00ff9d] text-xs font-bold mb-1">SOLUTION:</div>
+                                    ${item.soln}
+                                </div>
+                            </div>`;
+                    }
+
+                } else {
+                    // Review Mode: Answer + Explanation
+                    contentHTML = `
+                        <div class="mt-2 p-3 bg-black/40 border-l-2 border-yellow-500 text-yellow-500 font-mono text-sm">
+                            ANSWER: ${item.ans} <span class="text-gray-500 text-xs ml-2">[Option ${item.key.toUpperCase()}]</span>
+                        </div>
+                        <button onclick="document.getElementById('soln-${item.id}').classList.toggle('hidden')" 
+                            class="mt-auto w-full py-2 bg-[#1f1f2e] hover:bg-[#2d2d3a] text-gray-300 text-sm font-bold uppercase tracking-widest transition-colors border-t border-gray-700 flex justify-center items-center gap-2">
+                            <span>View Protocol</span>
+                        </button>
+                        <div id="soln-${item.id}" class="hidden pt-4 border-t border-gray-800 space-y-4">
+                            <div class="text-gray-400 text-sm">
+                                <strong class="text-[#00f3ff]">SOLUTION_LOG:</strong><br>
+                                <div class="mt-2">${item.soln}</div>
+                            </div>
+                            ${item.caltech ? `<div class="bg-[#1a1a24] p-3 rounded border border-gray-700 font-mono text-sm text-gray-300 leading-8">${item.caltech}</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                const card = document.createElement('div');
+                card.className = cardClass;
+                card.innerHTML = headerHTML + contentHTML;
                 container.appendChild(card);
             });
-            // Re-render math
-            if(window.MathJax) {
-                MathJax.typesetPromise();
-            }
+            
+            // Re-render MathJax
+            if(window.MathJax) MathJax.typesetPromise();
         }
 
-        function toggleSoln(id) {
-            const el = document.getElementById(`soln-${id}`);
-            el.classList.toggle('hidden');
-        }
-
-        function toggleAllSolutions() {
-            document.querySelectorAll('[id^="soln-"]').forEach(el => el.classList.remove('hidden'));
-        }
-
-        // Search Filter
-        searchInput.addEventListener('input', (e) => {
-            const term = e.target.value.toLowerCase();
-            const filtered = questions.filter(q => 
-                q.q.toLowerCase().includes(term) || 
-                q.topic.toLowerCase().includes(term) ||
-                q.id.toString().includes(term)
-            );
-            renderQuestions(filtered);
-        });
-
-        // Initial Render
-        renderQuestions(questions);
-
+        // Initialize
+        renderQuestions();
     </script>
 </body>
 </html>
